@@ -1,0 +1,105 @@
+# =========================================================
+# Nirikshan — Legal Metrology Compliance Scanner
+# .gitignore — React + Vite + Tailwind CSS (frontend)
+# Git repository root: frontend/
+# =========================================================
+
+# ─────────────────────────────────────────────────────────
+# Dependencies
+# ─────────────────────────────────────────────────────────
+node_modules/
+**/node_modules/
+
+# ─────────────────────────────────────────────────────────
+# Build output  (Vite default outDir = dist/)
+# ─────────────────────────────────────────────────────────
+dist/
+**/dist/
+build/
+**/build/
+
+# ─────────────────────────────────────────────────────────
+# Environment variables
+# NEVER commit .env — they may contain API keys, secrets,
+# OCR service credentials, JWT secrets, DB configs, etc.
+# ─────────────────────────────────────────────────────────
+.env
+.env.*
+!.env.example
+
+# ─────────────────────────────────────────────────────────
+# Logs
+# ─────────────────────────────────────────────────────────
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# ─────────────────────────────────────────────────────────
+# Vite / Build cache
+# ─────────────────────────────────────────────────────────
+.vite/
+.cache/
+.parcel-cache/
+.eslintcache
+*.tsbuildinfo
+vite.config.js.timestamp-*
+
+# ─────────────────────────────────────────────────────────
+# Testing & Coverage
+# ─────────────────────────────────────────────────────────
+coverage/
+.nyc_output/
+
+# ─────────────────────────────────────────────────────────
+# Editor / IDE
+# ─────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+*.swo
+*.code-workspace
+
+# ─────────────────────────────────────────────────────────
+# Operating System
+# ─────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+$RECYCLE.BIN/
+
+# ─────────────────────────────────────────────────────────
+# Temporary files
+# ─────────────────────────────────────────────────────────
+*.tmp
+*.temp
+*.bak
+*.backup
+tmp/
+temp/
+
+# ─────────────────────────────────────────────────────────
+# Certificates / Private keys (NEVER commit)
+# ─────────────────────────────────────────────────────────
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+
+# ─────────────────────────────────────────────────────────
+# Local databases (for when backend is added)
+# NOTE: frontend/src/data/ is source-controlled — do NOT
+# add a global "data/" rule that would capture it.
+# Use specific backend paths such as backend/data/ instead.
+# ─────────────────────────────────────────────────────────
+*.sqlite
+*.sqlite3
+*.db
