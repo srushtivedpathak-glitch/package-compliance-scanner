@@ -1,0 +1,93 @@
+{
+    "product": {
+        "product_name": "ABC BISCUITS",
+        "net_quantity": "200 g",
+        "mrp": "₹50.00",
+        "manufacturer": "ABC Foods"
+    },
+    "applicability": {
+        "status": "APPLICABLE",
+        "reason": "The product is within the primary scope and no exclusion was established."
+    },
+    "overall_status": "NEEDS_VERIFICATION",
+    "summary": {
+        "total_rules": 8,
+        "passed": 4,
+        "failed": 0,
+        "needs_verification": 4
+    },
+    "rule_results": [
+        {
+            "rule_id": "R002",
+            "rule_number": "Rule 6(1)(a)",
+            "field": "manufacturer",
+            "status": "PASS",
+            "value": "ABC Foods",
+            "confidence": 0.94,
+            "reason": "Required information was clearly detected and passed validation."
+        },
+        {
+            "rule_id": "R003",
+            "rule_number": "Rule 6(1)(b)",
+            "field": "product_name",
+            "status": "PASS",
+            "value": "ABC BISCUITS",
+            "confidence": 0.98,
+            "reason": "Required information was clearly detected and passed validation."
+        },
+        {
+            "rule_id": "R004",
+            "rule_number": "Rule 6(1)(c)",
+            "field": "net_quantity",
+            "status": "PASS",
+            "value": "200 g",
+            "confidence": 0.97,
+            "reason": "Required information was clearly detected and passed validation."
+        },
+        {
+            "rule_id": "R005",
+            "rule_number": "Rule 6(1)(d)",
+            "field": "manufacture_prepack_import_date",
+            "status": "NEEDS_VERIFICATION",
+            "value": null,
+            "confidence": null,
+            "reason": "Image/OCR evidence is insufficient to reliably determine compliance."
+        },
+        {
+            "rule_id": "R006",
+            "rule_number": "Rule 6(1)(e)",
+            "field": "mrp",
+            "status": "PASS",
+            "value": "₹50.00",
+            "confidence": 0.96,
+            "reason": "Required information was clearly detected and passed validation."
+        },
+        {
+            "rule_id": "R009",
+            "rule_number": "Rule 6(2)",
+            "field": "consumer_complaint_contact",
+            "status": "NEEDS_VERIFICATION",
+            "value": null,
+            "confidence": null,
+            "reason": "Image/OCR evidence is insufficient to reliably determine compliance."
+        },
+        {
+            "rule_id": "R018",
+            "rule_number": "Rule 12",
+            "field": "quantity_unit",
+            "status": "NEEDS_VERIFICATION",
+            "value": null,
+            "confidence": null,
+            "reason": "Image/OCR evidence is insufficient to reliably determine compliance."
+        },
+        {
+            "rule_id": "R020",
+            "rule_number": "Rule 13",
+            "field": "unit_format",
+            "status": "NEEDS_VERIFICATION",
+            "value": null,
+            "confidence": null,
+            "reason": "Image/OCR evidence is insufficient to reliably determine compliance."
+        }
+    ]
+}
