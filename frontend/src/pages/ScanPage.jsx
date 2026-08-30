@@ -34,16 +34,41 @@ export default function ScanPage() {
     setPreviewUrl(null)
   }
 
-  const handleStartScan = () => {
+  const handleStartScan = async () => {
     if (!selectedFile) return
-    setIsScanning(true)
-    // Simulate OCR / extraction transition
-    setTimeout(() => {
-      setIsScanning(false)
-      navigate('/extracted')
-    }, 1200)
-  }
 
+    setIsScanning(true)
+
+    try {
+      const formData = new FormData()
+
+      formData.append('image', selectedFile)
+
+      const response = await fetch('http://localhost:3000/api/scans', {
+        method: 'POST',
+        body: formData,
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Scan failed')
+      }
+
+      console.log('Scan successful:', data)
+
+      navigate('/extracted', {
+        state: {
+          scanResult: data,
+        },
+      })
+    } catch (error) {
+      console.error('Scan error:', error)
+      alert(error.message || 'Failed to upload image')
+    } finally {
+      setIsScanning(false)
+    }
+  }
   return (
     <motion.div
       initial={{ opacity: 0, y: 12 }}
@@ -118,9 +143,8 @@ export default function ScanPage() {
           type="button"
           onClick={handleStartScan}
           disabled={!selectedFile || isScanning}
-          className={`btn-primary text-xs sm:text-sm px-6 py-2.5 shadow-md ${
-            !selectedFile ? 'opacity-60 cursor-not-allowed' : 'hover:shadow-lg'
-          }`}
+          className={`btn-primary text-xs sm:text-sm px-6 py-2.5 shadow-md ${!selectedFile ? 'opacity-60 cursor-not-allowed' : 'hover:shadow-lg'
+            }`}
           aria-label="Scan label and proceed to information extraction"
         >
           {isScanning ? (
