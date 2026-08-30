@@ -1,0 +1,23 @@
+{
+  "name": "package-compliance-scanner",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+      "dev": "concurrently -n NODE,COMPLIANCE,OCR -c blue,green,yellow \"npm run dev --prefix backend\" \".venv\\Scripts\\python -m uvicorn app:app --reload --port 8000 --app-dir packcheck\\complianceengine\" \".venv\\Scripts\\python -m uvicorn extraction:app --reload --port 8001 --app-dir extraction_module\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/srushtivedpathak-glitch/package-compliance-scanner.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/srushtivedpathak-glitch/package-compliance-scanner/issues"
+  },
+  "homepage": "https://github.com/srushtivedpathak-glitch/package-compliance-scanner#readme",
+  "devDependencies": {
+    "concurrently": "^10.0.5"
+  }
+}

@@ -1,41 +1,104 @@
 # ============================================================
 # PackCheck - FastAPI wrapper around the compliance engine
 # ============================================================
-#
-# This exposes the existing applicability.py + checker.py logic
-# over HTTP so Node can call it. No file writes, no DB access —
-# pure function in, JSON out. Node owns persistence.
-# ============================================================
 
 from fastapi import FastAPI
 from pydantic import BaseModel
-from typing import Any, Dict, Optional
+from typing import Any, Dict
 
 from applicability import determine_applicability
 from checker import check_product, get_overall_status
-
-# For local testing only, until real OCR output replaces it
 from product_data import product as stub_product
-
 
 app = FastAPI(title="PackCheck Compliance Engine")
 
 
 # ============================================================
-# Request / response contract
+# Request contracts
 # ============================================================
-#
-# Node sends the OCR-extracted product dict in this exact shape
-# (same shape as product_data.py). Using Dict[str, Any] here
-# because OCR fields are either {value, confidence, detected,
-# field_visibility} dicts or plain scalars — see product_data.py.
 
 class ComplianceRequest(BaseModel):
     product: Dict[str, Any]
 
 
+class OcrRequest(BaseModel):
+    ocr_data: Dict[str, Any]
+
+
 # ============================================================
-# Core logic (lifted straight from main.py, minus print/save)
+# Adapter: Gemini OCR schema -> flat compliance-engine schema
+# ============================================================
+#
+# OCR (ocr_extraction.py) returns nested objects like:
+#   { "mrp_details": { "raw_text": "...", "confidence": 0.9, "detected": true } }
+#
+# checker.py / applicability.py expect the flat shape used in
+# product_data.py:
+#   { "mrp": { "value": "...", "confidence": 0.9, "detected": true,
+#              "field_visibility": "clear" } }
+#
+# This function bridges the two so nothing in applicability.py
+# or checker.py has to change.
+
+def _field(entity: dict, value_key: str = "raw_text") -> dict:
+    if not entity:
+        return {"value": None, "confidence": None, "detected": False, "field_visibility": "uncertain"}
+
+    detected = entity.get("detected", False)
+    return {
+        "value": entity.get(value_key),
+        "confidence": entity.get("confidence"),
+        "detected": detected,
+        "field_visibility": "clear" if detected else "uncertain"
+    }
+
+
+def map_ocr_to_product(ocr_data: dict) -> dict:
+    net_qty = ocr_data.get("net_quantity", {}) or {}
+    mrp = ocr_data.get("mrp_details", {}) or {}
+
+    product = {
+        "product_name": _field(ocr_data.get("product_name")),
+        "net_quantity": _field(net_qty),
+        "mrp": _field(mrp),
+        "manufacturer": _field(ocr_data.get("manufacturer"), value_key="name"),
+        "packer": _field(ocr_data.get("packer"), value_key="name"),
+        "importer": _field(ocr_data.get("importer"), value_key="name"),
+
+        # ---- Context fields OCR cannot see. Same defaults as
+        # ---- product_data.py until Person 1/2 decide these need
+        # ---- to come from elsewhere (product category selection
+        # ---- on the frontend, for example).
+        "commodity_type": "packaged_commodity",
+        "intended_sale": "retail",
+        "consumer_type": "retail",
+        "package_quantity": net_qty.get("value"),
+        "package_unit": net_qty.get("unit"),
+        "dimensions_relevant": False,
+        "multi_product_package": False,
+        "outside_wrapper_present": False,
+        "package_kept_offered_exposed_or_sold": True,
+        "quantity_declared": bool(net_qty.get("detected", False)),
+        "specified_textile_commodity": False,
+        "sheet_type_commodity": False,
+        "container_type_commodity": False,
+        "dimensions_or_weight_related_to_price": False,
+        "wholesale_package": False,
+        "export_package_sold_in_india": False,
+        "advertisement_mentions_retail_sale_price": False,
+
+        # TODO: Gemini doesn't return an image-quality score.
+        # Ask Person 1 to add a blur/quality check, or compute
+        # one in Node from the raw image before calling OCR.
+        # Assumed reliable for now.
+        "image_quality": 0.9
+    }
+
+    return product
+
+
+# ============================================================
+# Core pipeline
 # ============================================================
 
 def build_compliance_result(product, applicability_result, results, overall_status):
@@ -84,7 +147,6 @@ def run_compliance_check(product: dict) -> dict:
 
     results = check_product(product, applicability_result)
     overall_status = get_overall_status(results)
-
     return build_compliance_result(product, applicability_result, results, overall_status)
 
 
@@ -99,18 +161,18 @@ def health():
 
 @app.post("/check")
 def check(payload: ComplianceRequest):
-    """
-    Real endpoint Node will call once OCR is wired in.
-    Body: { "product": { ...OCR fields... } }
-    """
+    """Takes the flat product_data.py-shaped dict directly."""
     return run_compliance_check(payload.product)
+
+
+@app.post("/check/from-ocr")
+def check_from_ocr(payload: OcrRequest):
+    """Takes raw Gemini OCR output and adapts it before running the pipeline."""
+    product = map_ocr_to_product(payload.ocr_data)
+    return run_compliance_check(product)
 
 
 @app.get("/check/stub")
 def check_stub():
-    """
-    Test endpoint using the hardcoded product_data.py stub.
-    Use this to verify the Node <-> FastAPI pipeline works
-    before OCR exists.
-    """
+    """Test endpoint using the hardcoded product_data.py stub."""
     return run_compliance_check(stub_product)
