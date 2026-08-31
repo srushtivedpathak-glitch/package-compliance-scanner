@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-      "dev": "concurrently -n NODE,COMPLIANCE,OCR -c blue,green,yellow \"npm run dev --prefix backend\" \".venv\\Scripts\\python -m uvicorn app:app --reload --port 8000 --app-dir packcheck\\complianceengine\" \".venv\\Scripts\\python -m uvicorn extraction:app --reload --port 8001 --app-dir extraction_module\""
+    "dev": "concurrently -n NODE,COMPLIANCE,OCR,FRONTEND -c blue,green,yellow,magenta \"npm run dev --prefix backend\" \".venv\\Scripts\\python -m uvicorn app:app --reload --port 8000 --app-dir packcheck\\complianceengine\" \".venv\\Scripts\\python -m uvicorn extraction:app --reload --port 8001 --app-dir extraction_module\" \"npm run dev --prefix frontend\""
   },
   "repository": {
     "type": "git",
