@@ -13,7 +13,7 @@ import { cn } from '../../utils/cn'
 
 const SUMMARY_ITEMS = [
   {
-    id: 'total',
+    id: 'totalChecks',
     label: 'Total Checks',
     icon: ShieldCheck,
     iconBg: 'bg-teal-50',
